@@ -9,6 +9,7 @@ interface Project {
 
 const TaskForm: React.FC = () => {
   const [projectId, setProjectId] = useState<number | null>(null);
+  const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [projects, setProjects] = useState<Project[]>([]);
 
@@ -32,9 +33,14 @@ const TaskForm: React.FC = () => {
       return;
     }
     try {
-      const response = await axios.post(`${BACKEND_URL}/tasks`, { projectId, description });
+      const response = await axios.post(`${BACKEND_URL}/tasks`, {
+        projectId,
+        name,
+        description,
+      });
       console.log('Task created:', response.data);
       setProjectId(null);
+      setName('');
       setDescription('');
     } catch (error) {
       console.error('Error creating task:', error);
@@ -61,7 +67,18 @@ const TaskForm: React.FC = () => {
             </option>
           ))}
         </select>
+        <label htmlFor="name-input">Task name:</label>
         <input
+          id="name-input"
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Enter task name"
+          required
+        />
+        <label htmlFor="description-input">Task description:</label>
+        <input
+          id="description-input"
           type="text"
           value={description}
           onChange={(e) => setDescription(e.target.value)}

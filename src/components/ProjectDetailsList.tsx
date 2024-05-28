@@ -2,11 +2,14 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import BACKEND_URL from '../config';
 import ProjectRollbackButton from '../components/ProjectRollbackButton';
+import TaskDeleteButton from '../components/TaskDeleteButton';
 
 interface Task {
   id: number;
+  name: string;
   description: string;
   isCompleted: boolean;
+  deletedAt: string | null;
 }
 
 interface Project {
@@ -21,6 +24,10 @@ const ProjectDetailList: React.FC<{ projectId: number }> = ({ projectId }) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    fetchProject();
+  }, [projectId ]);
+
+  const fetchProject = () => {
     axios.get(`${BACKEND_URL}/projects/${projectId}`)
       .then(response => {
         setProject(response.data);
@@ -30,7 +37,7 @@ const ProjectDetailList: React.FC<{ projectId: number }> = ({ projectId }) => {
         setError('Error fetching project details');
         setLoading(false);
       });
-  }, [projectId]);
+  };
 
   const handleTaskCompletion = (taskId: number) => {
     axios.post(`${BACKEND_URL}/tasks/${taskId}/complete`)
@@ -52,18 +59,12 @@ const ProjectDetailList: React.FC<{ projectId: number }> = ({ projectId }) => {
       });
   };
 
-  const handleRollbackSuccess = () => {
+  const handleDeleteSuccess = () => {
     fetchProject();
   };
 
-  const fetchProject = () => {
-    axios.get(`${BACKEND_URL}/projects/${projectId}`)
-      .then(response => {
-        setProject(response.data);
-      })
-      .catch(error => {
-        setError('Error fetching project details');
-      });
+  const handleRollbackSuccess = () => {
+    fetchProject();
   };
 
   if (loading) {
@@ -82,14 +83,22 @@ const ProjectDetailList: React.FC<{ projectId: number }> = ({ projectId }) => {
     <div>
       <h1>{project.name}</h1>
       <ul>
-        {project.tasks.map(task => (
-          <li key={task.id}>
-            {task.description} - {task.isCompleted ? 'Completed' : 'Pending'}
-            {!task.isCompleted && (
-              <button onClick={() => handleTaskCompletion(task.id)}>Complete</button>
-            )}
-          </li>
-        ))}
+        {project.tasks
+          .filter(task => task.deletedAt === null) 
+          .map(task => (
+            <li key={task.id}>
+             {task.name} <div> {task.description} </div> - {task.isCompleted ? 'Completed' : 'Pending'}
+              {!task.isCompleted && (
+                <>
+                  <button onClick={() => handleTaskCompletion(task.id)}>Complete</button>
+                  <TaskDeleteButton
+                    taskId={task.id}
+                    onDeleteSuccess={handleDeleteSuccess}
+                  />
+                </>
+              )}
+            </li>
+          ))}
       </ul>
       <ProjectRollbackButton projectId={project.id} onRollbackSuccess={handleRollbackSuccess} />
     </div>
