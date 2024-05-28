@@ -3,6 +3,19 @@ import axios from 'axios';
 import BACKEND_URL from '../config';
 import ProjectRollbackButton from '../components/ProjectRollbackButton';
 import TaskDeleteButton from '../components/TaskDeleteButton';
+import {
+  Box,
+  CircularProgress,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemSecondaryAction,
+  Typography,
+  IconButton,
+  Divider,
+  Grid,
+} from '@mui/material';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 interface Task {
   id: number;
@@ -25,7 +38,7 @@ const ProjectDetailList: React.FC<{ projectId: number }> = ({ projectId }) => {
 
   useEffect(() => {
     fetchProject();
-  }, [projectId ]);
+  }, [projectId]);
 
   const fetchProject = () => {
     axios.get(`${BACKEND_URL}/projects/${projectId}`)
@@ -68,40 +81,60 @@ const ProjectDetailList: React.FC<{ projectId: number }> = ({ projectId }) => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Box display="flex" justifyContent="center" mt={4}><CircularProgress /></Box>;
   }
 
   if (error) {
-    return <div>{error}</div>;
+    return <Typography color="error" variant="h6">{error}</Typography>;
   }
 
   if (!project) {
-    return <div>Project not found</div>;
+    return <Typography color="error" variant="h6">Project not found</Typography>;
   }
 
   return (
-    <div>
-      <h1>{project.name}</h1>
-      <ul>
-        {project.tasks
-          .filter(task => task.deletedAt === null) 
-          .map(task => (
-            <li key={task.id}>
-             {task.name} <div> {task.description} </div> - {task.isCompleted ? 'Completed' : 'Pending'}
-              {!task.isCompleted && (
-                <>
-                  <button onClick={() => handleTaskCompletion(task.id)}>Complete</button>
-                  <TaskDeleteButton
-                    taskId={task.id}
-                    onDeleteSuccess={handleDeleteSuccess}
-                  />
-                </>
-              )}
-            </li>
-          ))}
-      </ul>
-      <ProjectRollbackButton projectId={project.id} onRollbackSuccess={handleRollbackSuccess} />
-    </div>
+    <Box mt={4}>
+      <Typography variant="h4" gutterBottom>{project.name}</Typography>
+      <List>
+        {project.tasks.filter(task => task.deletedAt === null).map(task => (
+          <React.Fragment key={task.id}>
+            <ListItem>
+              <ListItemText
+                primary={task.name}
+                secondary={task.description}
+              />
+              <ListItemSecondaryAction>
+                {!task.isCompleted ? (
+                  <Grid container spacing={1}>
+                    <Grid item>
+                      <IconButton
+                        edge="end"
+                        aria-label="complete"
+                        color="primary"
+                        onClick={() => handleTaskCompletion(task.id)}
+                      >
+                        <CheckCircleIcon />
+                      </IconButton>
+                    </Grid>
+                    <Grid item>
+                      <TaskDeleteButton taskId={task.id} onDeleteSuccess={handleDeleteSuccess} />
+                    </Grid>
+                  </Grid>
+                ) : (
+                  <Typography variant="body2" color="textSecondary">
+                    Completed
+                  </Typography>
+                )}
+              </ListItemSecondaryAction>
+            </ListItem>
+            <Divider variant="inset" component="li" />
+          </React.Fragment>
+        ))}
+      </List>
+      <Box mt={2}>
+        <ProjectRollbackButton projectId={project.id} onRollbackSuccess={handleRollbackSuccess} />
+      </Box>
+    </Box>
   );
 };
 

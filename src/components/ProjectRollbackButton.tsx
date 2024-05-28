@@ -1,6 +1,8 @@
 import React from 'react';
 import axios from 'axios';
 import BACKEND_URL from '../config';
+import { Button } from '@mui/material';
+import RestoreIcon from '@mui/icons-material/Restore';
 
 interface Props {
   projectId: number;
@@ -20,7 +22,14 @@ const ProjectRollbackButton: React.FC<Props> = ({ projectId, onRollbackSuccess }
   };
 
   return (
-    <button onClick={handleRollback}>Rollback</button>
+    <Button
+      variant="contained"
+      color="warning"
+      startIcon={<RestoreIcon />}
+      onClick={handleRollback}
+    >
+      Rollback
+    </Button>
   );
 };
 

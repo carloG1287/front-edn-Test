@@ -6,12 +6,14 @@ import HomePage from './pages/HomePage';
 import ProjectsPage from './pages/ProjectsPage';
 import ProjectDetailPage from './pages/ProjectDetailPage';
 import TaskPage from './pages/TaskPage';
+import Navbar from './components/navbar';
 
 import './App.css';
 
 function App() {
   return (
     <Router>
+      <Navbar />
       <Routes>
       <Route path="/" Component={HomePage} />
         <Route path="/projects/create" Component={ProjectForm} />

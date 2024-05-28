@@ -1,6 +1,8 @@
 import React from 'react';
 import axios from 'axios';
 import BACKEND_URL from '../config';
+import { Button } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 interface Props {
   taskId: number;
@@ -19,7 +21,14 @@ const TaskDeleteButton: React.FC<Props> = ({ taskId, onDeleteSuccess }) => {
   };
 
   return (
-    <button onClick={handleDelete}>Delete</button>
+    <Button
+      variant="contained"
+      color="error"
+      startIcon={<DeleteIcon />}
+      onClick={handleDelete}
+    >
+      Delete
+    </Button>
   );
 };
 

@@ -1,6 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import BACKEND_URL from '../config';
+import {
+  Autocomplete,
+  TextField,
+  Button,
+  Box,
+  Typography,
+  Container,
+  Paper,
+  Modal,
+  Fade
+} from '@mui/material';
 
 interface Project {
   id: number;
@@ -12,6 +23,8 @@ const TaskForm: React.FC = () => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [projects, setProjects] = useState<Project[]>([]);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [openModal, setOpenModal] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -42,52 +55,92 @@ const TaskForm: React.FC = () => {
       setProjectId(null);
       setName('');
       setDescription('');
+      setSelectedProject(null);
+      setOpenModal(true);
     } catch (error) {
       console.error('Error creating task:', error);
     }
   };
 
+  const handleCloseModal = () => {
+    setOpenModal(false);
+  };
+
   return (
-    <div>
-      <h1>Create Task</h1>
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="project-select">Select a project:</label>
-        <select
-          id="project-select"
-          value={projectId !== null ? projectId : ''}
-          onChange={(e) => setProjectId(Number(e.target.value))}
-          required
-        >
-          <option value="" disabled>
-            Select a project
-          </option>
-          {projects.map((project) => (
-            <option key={project.id} value={project.id}>
-              {project.name}
-            </option>
-          ))}
-        </select>
-        <label htmlFor="name-input">Task name:</label>
-        <input
-          id="name-input"
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Enter task name"
-          required
-        />
-        <label htmlFor="description-input">Task description:</label>
-        <input
-          id="description-input"
-          type="text"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Enter task description"
-          required
-        />
-        <button type="submit">Create</button>
-      </form>
-    </div>
+    <Container maxWidth="sm">
+      <Paper elevation={3} sx={{ p: 4, mt: 4 }}>
+        <Typography variant="h4" component="h1" gutterBottom>
+          Create Task
+        </Typography>
+        <Box component="form" onSubmit={handleSubmit} noValidate>
+          <Autocomplete
+            disablePortal
+            id="project-select"
+            options={projects}
+            getOptionLabel={(option) => option.name}
+            sx={{ mb: 3 }}
+            value={selectedProject}
+            onChange={(event, newValue) => {
+              setSelectedProject(newValue);
+              setProjectId(newValue ? newValue.id : null);
+            }}
+            renderInput={(params) => <TextField {...params} label="Select a project" required />}
+          />
+          <TextField
+            id="name-input"
+            label="Task name"
+            type="text"
+            fullWidth
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Enter task name"
+            required
+            sx={{ mb: 3 }}
+          />
+          <TextField
+            id="description-input"
+            label="Task description"
+            type="text"
+            fullWidth
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Enter task description"
+            required
+            sx={{ mb: 3 }}
+          />
+          <Button variant="contained" color="primary" type="submit" fullWidth>
+            Create
+          </Button>
+        </Box>
+      </Paper>
+      <Modal
+        open={openModal}
+        onClose={handleCloseModal}
+        closeAfterTransition
+      >
+        <Fade in={openModal}>
+          <Box
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              bgcolor: 'background.paper',
+              boxShadow: 24,
+              p: 4,
+              textAlign: 'center',
+            }}
+          >
+            <Typography variant="h6" gutterBottom>
+              Task created successfully!
+            </Typography>
+            <Button variant="contained" color="primary" onClick={handleCloseModal}>
+              Close
+            </Button>
+          </Box>
+        </Fade>
+      </Modal>
+    </Container>
   );
 };
 
