@@ -2,10 +2,13 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import BACKEND_URL from '../config';
 import { Box, Button, TextField, Typography, Modal } from '@mui/material';
+import BackgroundEffect from '../components/BackgroundEffect';
+import { useThemeContext } from '../components/ThemeProvider';
 
 const ProjectForm: React.FC = () => {
   const [name, setName] = useState('');
   const [open, setOpen] = useState(false); 
+  const { darkMode } = useThemeContext();
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -26,7 +29,8 @@ const ProjectForm: React.FC = () => {
 
   return (
     <Box mt={4} display="flex" justifyContent="center" alignItems="center" flexDirection="column">
-      <Typography variant="h4" gutterBottom>
+      <BackgroundEffect />
+      <Typography variant="h4" color={darkMode ? 'white' : 'inherit' } gutterBottom align="center">
         Create Project
       </Typography>
       <form onSubmit={handleSubmit} style={{ width: '100%', maxWidth: 400 }}>

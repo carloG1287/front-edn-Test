@@ -1,12 +1,17 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Box, Typography, Button, Container, Grid } from '@mui/material';
+import BackgroundEffect from '../components/BackgroundEffect';
+import { useThemeContext } from '../components/ThemeProvider';
 
 const Homepage: React.FC = () => {
+  const { darkMode } = useThemeContext();
+
   return (
     <Container>
+      <BackgroundEffect />
       <Box mt={8}>
-        <Typography variant="h2" gutterBottom align="center">
+        <Typography variant="h2" gutterBottom align="center" color={darkMode ? 'white' : 'inherit'}>
           Welcome to the Project Management App
         </Typography>
         <Grid container spacing={2} justifyContent="center">
@@ -21,9 +26,6 @@ const Homepage: React.FC = () => {
             </Button>
           </Grid>
           <Grid item>
-            <Button variant="contained" component={Link} to="/tasks/create" color="primary">
-              Create Task
-            </Button>
           </Grid>
         </Grid>
       </Box>

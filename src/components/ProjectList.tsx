@@ -4,17 +4,21 @@ import { Link } from 'react-router-dom';
 import BACKEND_URL from '../config';
 import ProjectDeleteButton from '../components/ProjectDeleteButton';
 import {
-  List,
-  ListItem,
-  ListItemText,
-  ListItemSecondaryAction,
   Typography,
   CircularProgress,
   Alert,
   Box,
   IconButton,
   Divider,
+  Card,
+  CardContent,
+  Menu,
+  MenuItem,
+  CardHeader,
+  Grid,
 } from '@mui/material';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { useThemeContext } from '../components/ThemeProvider';
 
 interface Project {
   id: number;
@@ -31,10 +35,13 @@ interface Task {
 }
 
 const ProjectsList: React.FC = () => {
+  const { darkMode } = useThemeContext();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [update, setUpdate] = useState<boolean>(false);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
 
   useEffect(() => {
     axios.get(`${BACKEND_URL}/projects`)
@@ -80,6 +87,16 @@ const ProjectsList: React.FC = () => {
     setUpdate(!update); 
   };
 
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, projectId: number) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedProjectId(projectId);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setSelectedProjectId(null);
+  };
+
   const linkStyle: React.CSSProperties = {
     textDecoration: 'none',
     color: 'inherit',
@@ -87,43 +104,45 @@ const ProjectsList: React.FC = () => {
 
   return (
     <Box mt={4}>
-      <Typography variant="h4" gutterBottom>
+       <Typography variant="h4" color={darkMode ? 'white' : 'inherit' } gutterBottom align="center">
         Projects
       </Typography>
-      <List>
+      <Grid container spacing={2}>
         {projects.map(project => (
-          <Box key={project.id} mb={2}>
-            <ListItem>
-              <ListItemText
-                primary={
+          <Grid item xs={12} sm={6} md={4} key={project.id}>
+            <Card variant="outlined" style={{ backgroundColor: darkMode ? 'rgb(30, 41, 59)' : 'rgb(248, 250, 252)', color: darkMode ? 'white' : 'black' }}>
+              <CardHeader
+                action={
+                  <IconButton aria-label="settings" onClick={(event) => handleMenuOpen(event, project.id)}>
+                    <MoreVertIcon />
+                  </IconButton>
+                }
+                title={
                   <Link to={`/projects/${project.id}`} style={linkStyle}>
-                    <Typography variant="h6" color="primary">{project.name}</Typography>
+                    <Typography variant="h6" color="primary">
+                      {project.name}
+                    </Typography>
                   </Link>
                 }
-                secondary={getStatus(project)}
+                subheader={getStatus(project)}
               />
-              <ListItemSecondaryAction>
-                <IconButton edge="end" aria-label="delete">
-                  <ProjectDeleteButton projectId={project.id} onDeleteSuccess={handleDeleteSuccess} />
-                </IconButton>
-              </ListItemSecondaryAction>
-            </ListItem>
-            <List component="div" disablePadding>
-              {project.tasks
-                .filter(task => !task.deletedAt)
-                .map(task => (
-                  <ListItem key={task.id} sx={{ pl: 4 }}>
-                    <ListItemText
-                      primary={task.name}
-                      secondary={task.isCompleted ? 'Completed' : 'Pending'}
-                    />
-                  </ListItem>
-                ))}
-            </List>
+              <CardContent>
+              </CardContent>
+            </Card>
             <Divider />
-          </Box>
+          </Grid>
         ))}
-      </List>
+      </Grid>
+
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+      >
+        <MenuItem onClick={handleMenuClose}>
+          <ProjectDeleteButton projectId={selectedProjectId!} onDeleteSuccess={handleDeleteSuccess} />
+        </MenuItem>
+      </Menu>
     </Box>
   );
 };

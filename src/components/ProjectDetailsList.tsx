@@ -1,21 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import BACKEND_URL from '../config';
-import ProjectRollbackButton from '../components/ProjectRollbackButton';
 import TaskDeleteButton from '../components/TaskDeleteButton';
+import PencilMenu from '../components/PencilMenu';
+import BackgroundEffect from '../components/BackgroundEffect';
+import { useThemeContext } from '../components/ThemeProvider';
+
 import {
   Box,
   CircularProgress,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemSecondaryAction,
   Typography,
-  IconButton,
   Divider,
   Grid,
+  Card,
+  CardContent,
+  Button,
 } from '@mui/material';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import DoneIcon from '@mui/icons-material/Done';
 
 interface Task {
   id: number;
@@ -35,7 +36,8 @@ const ProjectDetailList: React.FC<{ projectId: number }> = ({ projectId }) => {
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-
+  const { darkMode } = useThemeContext();
+  
   useEffect(() => {
     fetchProject();
   }, [projectId]);
@@ -76,8 +78,11 @@ const ProjectDetailList: React.FC<{ projectId: number }> = ({ projectId }) => {
     fetchProject();
   };
 
-  const handleRollbackSuccess = () => {
-    fetchProject();
+  const truncateDescription = (description: string, maxLength: number) => {
+    if (description.length > maxLength) {
+      return `${description.slice(0, maxLength)}...`;
+    }
+    return description;
   };
 
   if (loading) {
@@ -94,45 +99,52 @@ const ProjectDetailList: React.FC<{ projectId: number }> = ({ projectId }) => {
 
   return (
     <Box mt={4}>
-      <Typography variant="h4" gutterBottom>{project.name}</Typography>
-      <List>
-        {project.tasks.filter(task => task.deletedAt === null).map(task => (
-          <React.Fragment key={task.id}>
-            <ListItem>
-              <ListItemText
-                primary={task.name}
-                secondary={task.description}
-              />
-              <ListItemSecondaryAction>
-                {!task.isCompleted ? (
-                  <Grid container spacing={1}>
-                    <Grid item>
-                      <IconButton
-                        edge="end"
-                        aria-label="complete"
-                        color="primary"
-                        onClick={() => handleTaskCompletion(task.id)}
-                      >
-                        <CheckCircleIcon />
-                      </IconButton>
-                    </Grid>
-                    <Grid item>
-                      <TaskDeleteButton taskId={task.id} onDeleteSuccess={handleDeleteSuccess} />
-                    </Grid>
-                  </Grid>
-                ) : (
-                  <Typography variant="body2" color="textSecondary">
-                    Completed
-                  </Typography>
-                )}
-              </ListItemSecondaryAction>
-            </ListItem>
-            <Divider variant="inset" component="li" />
-          </React.Fragment>
-        ))}
-      </List>
+      <BackgroundEffect />
+      <Typography variant="h4" color={darkMode ? 'white' : 'inherit' } gutterBottom align="center">
+   Project Name: {project.name}
+</Typography>
+
+      <Grid container spacing={3}>
+  {project.tasks.filter(task => task.deletedAt === null).map(task => (
+    <Grid item xs={12} sm={6} md={6} key={task.id}>
+      <Card sx={{ backgroundColor: darkMode ? '#222' : '#fff', color: darkMode ? '#fff' : 'inherit' }}>
+        <CardContent>
+          <Typography variant="h6">{task.name}</Typography>
+          <Box mt={1}>
+            <Typography variant="body1">
+              {truncateDescription(task.description, 100)}
+            </Typography>
+          </Box>
+          <Divider />
+          <Grid container justifyContent="space-between">
+            <Grid item>
+              {!task.isCompleted ? (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => handleTaskCompletion(task.id)}
+                >
+                  Complete
+                </Button>
+              ) : (
+                <Typography variant="body2" color="primary">
+                  Completed
+                  <DoneIcon fontSize="small" style={{ verticalAlign: 'middle' }} />
+                </Typography>
+              )}
+            </Grid>
+            <Grid item>
+              <TaskDeleteButton taskId={task.id} onDeleteSuccess={handleDeleteSuccess} />
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
+    </Grid>
+  ))}
+</Grid>
+
       <Box mt={2}>
-        <ProjectRollbackButton projectId={project.id} onRollbackSuccess={handleRollbackSuccess} />
+        <PencilMenu projectId={project.id} onRollbackSuccess={handleDeleteSuccess} />
       </Box>
     </Box>
   );

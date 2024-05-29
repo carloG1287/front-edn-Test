@@ -1,0 +1,5 @@
+.card-content {
+    max-height: calc(1.5em * 3);
+    overflow-y: auto; 
+  }
+  
