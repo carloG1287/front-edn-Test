@@ -37,7 +37,7 @@ const ProjectDetailList: React.FC<{ projectId: number }> = ({ projectId }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const { darkMode } = useThemeContext();
-  
+
   useEffect(() => {
     fetchProject();
   }, [projectId]);
@@ -78,6 +78,10 @@ const ProjectDetailList: React.FC<{ projectId: number }> = ({ projectId }) => {
     fetchProject();
   };
 
+  const handleTaskCreated = () => {
+    fetchProject(); 
+  };
+
   const truncateDescription = (description: string, maxLength: number) => {
     if (description.length > maxLength) {
       return `${description.slice(0, maxLength)}...`;
@@ -101,50 +105,50 @@ const ProjectDetailList: React.FC<{ projectId: number }> = ({ projectId }) => {
     <Box mt={4}>
       <BackgroundEffect />
       <Typography variant="h4" color={darkMode ? 'white' : 'inherit' } gutterBottom align="center">
-   Project Name: {project.name}
-</Typography>
+        Project Name: {project.name}
+      </Typography>
 
       <Grid container spacing={3}>
-  {project.tasks.filter(task => task.deletedAt === null).map(task => (
-    <Grid item xs={12} sm={6} md={6} key={task.id}>
-      <Card sx={{ backgroundColor: darkMode ? '#222' : '#fff', color: darkMode ? '#fff' : 'inherit' }}>
-        <CardContent>
-          <Typography variant="h6">{task.name}</Typography>
-          <Box mt={1}>
-            <Typography variant="body1">
-              {truncateDescription(task.description, 100)}
-            </Typography>
-          </Box>
-          <Divider />
-          <Grid container justifyContent="space-between">
-            <Grid item>
-              {!task.isCompleted ? (
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => handleTaskCompletion(task.id)}
-                >
-                  Complete
-                </Button>
-              ) : (
-                <Typography variant="body2" color="primary">
-                  Completed
-                  <DoneIcon fontSize="small" style={{ verticalAlign: 'middle' }} />
-                </Typography>
-              )}
-            </Grid>
-            <Grid item>
-              <TaskDeleteButton taskId={task.id} onDeleteSuccess={handleDeleteSuccess} />
-            </Grid>
+        {project.tasks.filter(task => task.deletedAt === null).map(task => (
+          <Grid item xs={12} sm={6} md={6} key={task.id}>
+            <Card sx={{ backgroundColor: darkMode ? '#222' : '#fff', color: darkMode ? '#fff' : 'inherit' }}>
+              <CardContent>
+                <Typography variant="h6">{task.name}</Typography>
+                <Box mt={1}>
+                  <Typography variant="body1">
+                    {truncateDescription(task.description, 100)}
+                  </Typography>
+                </Box>
+                <Divider />
+                <Grid container justifyContent="space-between">
+                  <Grid item>
+                    {!task.isCompleted ? (
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => handleTaskCompletion(task.id)}
+                      >
+                        Complete
+                      </Button>
+                    ) : (
+                      <Typography variant="body2" color="primary">
+                        Completed
+                        <DoneIcon fontSize="small" style={{ verticalAlign: 'middle' }} />
+                      </Typography>
+                    )}
+                  </Grid>
+                  <Grid item>
+                    <TaskDeleteButton taskId={task.id} onDeleteSuccess={handleDeleteSuccess} />
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
           </Grid>
-        </CardContent>
-      </Card>
-    </Grid>
-  ))}
-</Grid>
+        ))}
+      </Grid>
 
       <Box mt={2}>
-        <PencilMenu projectId={project.id} onRollbackSuccess={handleDeleteSuccess} />
+        <PencilMenu projectId={project.id} onRollbackSuccess={handleDeleteSuccess} onTaskCreated={handleTaskCreated} />
       </Box>
     </Box>
   );

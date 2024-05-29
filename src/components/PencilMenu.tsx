@@ -10,6 +10,7 @@ import BACKEND_URL from '../config';
 interface PencilMenuProps {
   projectId: number;
   onRollbackSuccess: () => void;
+  onTaskCreated: () => void;
 }
 
 const StyledMenu = styled(Menu)(({ theme }) => ({
@@ -30,7 +31,7 @@ const StyledMenuItem = styled(MenuItem)({
   },
 });
 
-const PencilMenu: React.FC<PencilMenuProps> = ({ projectId, onRollbackSuccess }) => {
+const PencilMenu: React.FC<PencilMenuProps> = ({ projectId, onRollbackSuccess, onTaskCreated }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [openTaskForm, setOpenTaskForm] = useState<boolean>(false);
   const [projectName, setProjectName] = useState<string>('');
@@ -126,7 +127,7 @@ const PencilMenu: React.FC<PencilMenuProps> = ({ projectId, onRollbackSuccess })
               maxWidth: '90%',
             }}
           >
-            <TaskForm onClose={handleTaskFormClose} projectId={projectId} projectName={projectName} />
+            <TaskForm onClose={handleTaskFormClose} projectId={projectId} projectName={projectName} onTaskCreated={onTaskCreated} />
           </Box>
         </Fade>
       </Modal>

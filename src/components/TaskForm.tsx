@@ -19,9 +19,10 @@ interface TaskFormProps {
   onClose: () => void;
   projectId: number;
   projectName: string;
+  onTaskCreated: () => void;
 }
 
-const TaskForm: React.FC<TaskFormProps> = ({ onClose, projectId, projectName }) => {
+const TaskForm: React.FC<TaskFormProps> = ({ onClose, projectId, projectName, onTaskCreated }) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [projects, setProjects] = useState<Project[]>([]);
@@ -60,6 +61,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onClose, projectId, projectName }) 
       setName('');
       setDescription('');
       setSelectedProject(null);
+      onTaskCreated();
       onClose();
     } catch (error) {
       console.error('Error creating task:', error);
@@ -80,7 +82,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onClose, projectId, projectName }) 
         maxWidth: '90%',
       }}
     >
-     <Typography variant="h4" color={darkMode ? 'white' : 'inherit'}>
+      <Typography variant="h4" color={darkMode ? 'white' : 'inherit'}>
         Create Task
       </Typography>
       <Box component="form" onSubmit={handleSubmit} noValidate>
